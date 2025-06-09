@@ -2,6 +2,7 @@
 
 namespace Laraditz\Action\Console;
 
+use Illuminate\Support\Str;
 use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
 

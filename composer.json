@@ -7,11 +7,13 @@
     "action",
     "DRY"
   ],
+  "homepage": "https://github.com/laraditz/action",
   "license": "MIT",
   "authors": [
     {
       "name": "Raditz Farhan",
-      "email": "raditzfarhan@gmail.com"
+      "email": "raditzfarhan@gmail.com",
+      "role": "Developer"
     }
   ],
   "minimum-stability": "dev",
@@ -23,6 +25,16 @@
   "autoload": {
     "psr-4": {
       "Laraditz\\Action\\": "src/"
+    }
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Laraditz\\Action\\ActionServiceProvider"
+      ]
     }
   }
 }

@@ -4,7 +4,7 @@ namespace Laraditz\Action;
 
 use BadMethodCallException;
 
-abstract class Action
+class Action
 {
     public function data(): array
     {

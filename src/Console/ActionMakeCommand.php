@@ -3,7 +3,9 @@
 namespace Laraditz\Action\Console;
 
 use Illuminate\Console\GeneratorCommand;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'make:action')]
 class ActionMakeCommand extends GeneratorCommand
 {
     /**
@@ -11,7 +13,7 @@ class ActionMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'make:action {name}';
+    protected $name = 'make:action {name}';
 
     /**
      * The console command description.

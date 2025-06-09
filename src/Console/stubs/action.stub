@@ -6,11 +6,10 @@ use Laraditz\Action\Action;
 
 class DummyClass extends Action
 {
-    public function rules()
+    public function __construct()
     {
-        // Your rules goes here (Optional)
-        return [];
-    }
+        // Use constructor property promotion to declare and assign properties
+    }   
 
     public function handle()
     {

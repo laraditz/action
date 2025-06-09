@@ -1,6 +1,6 @@
 <?php
 
-namespace Laraditz\Action\Commands;
+namespace Laraditz\Action\Console;
 
 use Illuminate\Console\GeneratorCommand;
 

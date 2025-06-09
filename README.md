@@ -15,102 +15,63 @@ Via Composer
 $ composer require laraditz/action
 ```
 
-## Configuration
-
-The Laravel and Lumen configurations vary slightly, so here are the instructions for each of the frameworks.
-
-### Laravel
-
-Edit the `config/app.php` file and add the following line to register the service provider:
-
-```php
-'providers' => [
-    ...
-    Laraditz\Action\ActionServiceProvider::class,
-    ...
-],
-```
-
-> Tip: If you're on Laravel version **5.5** or higher, you can skip this part of the setup in favour of the Auto-Discovery feature.
-
-### Lumen
-
-Edit the `bootstrap/app.php` file and add the following line to register the service provider:
-
-```php
-...
-$app->register(Laraditz\Action\ActionServiceProvider::class);
-...
-```
-
 ## Usage
 
-You can use `php artisan make:action <name>` to create your action. For example, `php artisan make:action CreateNewPost`. By default you can find it in `App/Actions` folder. 
+You can use `php artisan make:action <name>` to create your action. For example, `php artisan make:action CreateNewPost`. By default you can find it in `App/Actions` folder.
 
 Sample action file generated with some logic added as below:
+
 ```php
 namespace App\Actions;
 
+use App\Models\Post;
 use Laraditz\Action\Action;
 
 class CreateNewPost extends Action
 {
-    // Optional
-    public function rules()
-    {
-        return [
-            'title' => 'required',
-            'body' => 'required|min:10',
-        ];
-    }
+    public function __construct(
+        public string $title,
+        public string $body
+    )
+    {}
 
-    public function handle()
+    public function handle(): void
     {
-        // Your logic goes here
-        \App\Post::create($this->validated());
-
-        // use $this->validated() to get all validated attributes based on rules.
-        // You also can use $this->all() to retreive all attributes passed if there is no rules.
+        // You can use $this->data() helper to retreive all properties.
+        Post::create($this->data());
     }
 }
 ```
-
-You can also use dependency injection (DI) on the handle method.
-```php
-...
-public function handle(Request $request)
-{
-    // Your logic goes here        
-}
-...
-```
-> You can totally remove the `rules` method if you are not using it or just leave it as is.
 
 Now that you've created your action, you can call it in few ways as below:
 
 **Using plain object**
-```php
-$createNewPost = new CreateNewPost([
-    'title' => 'My first post', 
-    'body' => 'This is a post content'
-]);
 
-$createNewPost->dispatch();
+```php
+$createNewPost = new CreateNewPost(
+    title: 'My first post',
+    body: 'This is a post content'
+);
+
+$createNewPost->handle();
 ```
 
 **Using static method**
+
 ```php
-CreateNewPost::dispatch([
-    'title' => 'My first post', 
-    'body' => 'This is a post content'
-]);
+CreateNewPost::run(
+    title: 'My first post',
+    body: 'This is a post content'
+);
 ```
 
-**Using invokable**
-```php
-// routes/web.php
-Route::post('posts', '\App\Actions\CreateNewPost');
-```
+### Changelog
+
+Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
+
+### Security
+
+If you discover any security related issues, please email raditzfarhan@gmail.com instead of using the issue tracker.
 
 ## Credits
 

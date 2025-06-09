@@ -9,13 +9,6 @@ use Symfony\Component\Console\Attribute\AsCommand;
 class ActionMakeCommand extends GeneratorCommand
 {
     /**
-     * The console command name.
-     *
-     * @var string
-     */
-    protected $name = 'make:action {name}';
-
-    /**
      * The console command description.
      *
      * @var string

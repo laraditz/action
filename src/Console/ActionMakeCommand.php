@@ -27,7 +27,7 @@ class ActionMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $type = 'Action';
+    protected $type = 'Class';
 
     /**
      * Get the stub file for the generator.

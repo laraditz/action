@@ -27,7 +27,7 @@ class ActionMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $type = 'Class';
+    protected $type = 'Action';
 
     /**
      * Get the stub file for the generator.
@@ -36,7 +36,14 @@ class ActionMakeCommand extends GeneratorCommand
      */
     protected function getStub()
     {
-        return __DIR__ . '/stubs/action.stub';
+        return $this->resolveStubPath('/stubs/action.stub');
+    }
+
+    protected function resolveStubPath($stub)
+    {
+        return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
+            ? $customPath
+            : __DIR__ . $stub;
     }
 
     /**

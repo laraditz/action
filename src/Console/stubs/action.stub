@@ -1,18 +1,18 @@
 <?php
 
-namespace DummyNamespace;
+namespace {{ namespace }};
 
 use Laraditz\Action\Action;
 
-class DummyClass extends Action
+class {{ class }} extends Action
 {
     public function __construct()
     {
-        // Use constructor property promotion to declare and assign properties
+        // 
     }   
 
     public function handle()
     {
-        // Your code goes here
+        // Your action code goes here
     }
 }

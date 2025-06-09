@@ -9,7 +9,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 class ActionMakeCommand extends GeneratorCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */

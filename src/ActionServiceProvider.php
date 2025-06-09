@@ -13,14 +13,15 @@ class ActionServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->publishes([
-            __DIR__ . '/../config/action.php' => $this->configPath('action.php'),
-        ]);
-
         // register commands
         if ($this->app->runningInConsole()) {
+
+            $this->publishes([
+                __DIR__ . '/../config/config.php' => config_path('action.php'),
+            ], 'config');
+
             $this->commands([
-                __NAMESPACE__ . '\Commands\ActionMakeCommand',
+                Console\ActionMakeCommand::class,
             ]);
         }
 
@@ -34,18 +35,7 @@ class ActionServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->mergeConfigFrom(
-            __DIR__ . '/../config/action.php',
-            'action'
-        );
-    }
-
-    public function configPath($file)
-    {
-        if (function_exists('config_path')) {
-            return config_path($file);
-        } else {
-            return base_path('config/' . $file);
-        }
+        // Automatically apply the package configuration
+        $this->mergeConfigFrom(__DIR__ . '/../config/config.php', 'action');
     }
 }

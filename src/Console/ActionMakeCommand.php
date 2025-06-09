@@ -1,18 +1,14 @@
 <?php
 
-namespace Laraditz\Action\Commands;
+namespace Laraditz\Action\Console;
 
+use Illuminate\Support\Str;
 use Illuminate\Console\GeneratorCommand;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'make:action')]
 class ActionMakeCommand extends GeneratorCommand
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'make:action {name}';
-
     /**
      * The console command description.
      *
@@ -34,7 +30,14 @@ class ActionMakeCommand extends GeneratorCommand
      */
     protected function getStub()
     {
-        return __DIR__ . '/stubs/action.stub';
+        return $this->resolveStubPath('/stubs/action.stub');
+    }
+
+    protected function resolveStubPath($stub)
+    {
+        return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
+            ? $customPath
+            : __DIR__ . $stub;
     }
 
     /**

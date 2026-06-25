@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0] - 2026-06-25
+
+### Added
+
+- Add support for Laravel 13.
+- Re-add method injection on `handle()` via `app()->call()`.
+- Add explicit static `dispatch()` method for queue dispatching.
+- Add `illuminate/bus` as explicit dependency.
+
+### Changed
+
+- Replace instance `__call` magic with container-aware `run()` — both `$action->run()` and `ClassName::run(...)` now inject dependencies into `handle()`.
+- `__callStatic` now only handles the static `run()` pattern, delegating to instance `run()`.
+- Bump PHP minimum requirement to `^8.2`.
+- Add null-guard to `data()` for actions with no explicit constructor.
+
 ## [2.0.0] - 2025-06-09
 
 ### Changed

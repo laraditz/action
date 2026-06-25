@@ -3,23 +3,29 @@
 [![Latest Stable Version](https://poser.pugx.org/laraditz/action/v/stable?format=flat-square)](https://packagist.org/packages/laraditz/action)
 [![Total Downloads](https://img.shields.io/packagist/dt/laraditz/action?style=flat-square)](https://packagist.org/packages/laraditz/action)
 [![License](https://poser.pugx.org/laraditz/action/license?format=flat-square)](https://packagist.org/packages/laraditz/action)
-[![StyleCI](https://github.styleci.io/repos/7548986/shield?style=square)](https://github.com/laraditz/action)
 
-Single action class for Laravel and Lumen to keep your application DRY.
+Single action class for Laravel to keep your application DRY. Each action encapsulates one business operation, receives its input through the constructor, and resolves services automatically via Laravel's container.
+
+## Requirements
+
+- PHP 8.2+
+- Laravel 9 – 13
 
 ## Installation
 
-Via Composer
-
 ```bash
-$ composer require laraditz/action
+composer require laraditz/action
 ```
 
-## Usage
+## Creating an Action
 
-You can use `php artisan make:action <name>` to create your action. For example, `php artisan make:action CreateNewPost`. By default you can find it in `App/Actions` folder.
+Use the Artisan command to generate an action class (placed in `app/Actions/` by default):
 
-Sample action file generated with some logic added as below:
+```bash
+php artisan make:action CreateNewPost
+```
+
+Fill in the generated file:
 
 ```php
 namespace App\Actions;
@@ -31,45 +37,136 @@ class CreateNewPost extends Action
 {
     public function __construct(
         public string $title,
-        public string $body
-    )
-    {}
+        public string $body,
+    ) {}
 
-    public function handle(): void
+    public function handle(): Post
     {
-        // You can use $this->data() helper to retreive all properties.
-        Post::create($this->data());
+        return Post::create($this->data());
     }
 }
 ```
 
-Now that you've created your action, you can call it in few ways as below:
+## Running an Action
 
-**Using plain object**
-
-```php
-$createNewPost = new CreateNewPost(
-    title: 'My first post',
-    body: 'This is a post content'
-);
-
-$createNewPost->handle();
-```
-
-**Using static method**
+**Instance style** — construct first, then call `run()`:
 
 ```php
-CreateNewPost::run(
-    title: 'My first post',
-    body: 'This is a post content'
+$post = (new CreateNewPost(title: 'Hello', body: 'World'))->run();
+```
+
+**Static style** — constructor arguments are passed directly to `run()`:
+
+```php
+$post = CreateNewPost::run(title: 'Hello', body: 'World');
+```
+
+Both styles are equivalent.
+
+## Dependency Injection
+
+Type-hint services in `handle()` and Laravel's container injects them automatically:
+
+```php
+namespace App\Actions;
+
+use App\Mail\PostCreated;
+use App\Models\Post;
+use Illuminate\Contracts\Mail\Mailer;
+use Laraditz\Action\Action;
+
+class PublishPost extends Action
+{
+    public function __construct(
+        public string $title,
+        public string $body,
+        public string $authorEmail,
+    ) {}
+
+    public function handle(Mailer $mailer): Post
+    {
+        $post = Post::create($this->data());
+
+        $mailer->to($this->authorEmail)->send(new PostCreated($post));
+
+        return $post;
+    }
+}
+```
+
+```php
+// $mailer is resolved from the container automatically
+PublishPost::run(
+    title: 'My Post',
+    body: 'Content here',
+    authorEmail: 'author@example.com',
 );
 ```
 
-### Changelog
+## Queue Support
 
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
+Make an action queueable by implementing `ShouldQueue` and adding the standard Laravel queue traits. Do **not** add `Dispatchable` — the base `Action` class already provides `dispatch()`.
 
-### Security
+```php
+namespace App\Actions;
+
+use App\Mail\WelcomeEmail;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Mail\Mailer;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Laraditz\Action\Action;
+
+class SendWelcomeEmail extends Action implements ShouldQueue
+{
+    use Queueable, InteractsWithQueue, SerializesModels;
+
+    public function __construct(
+        public string $email,
+        public string $name,
+    ) {}
+
+    public function handle(Mailer $mailer): void
+    {
+        $mailer->to($this->email)->send(new WelcomeEmail($this->name));
+    }
+}
+```
+
+**Dispatching to the queue:**
+
+```php
+// Using the base class static dispatch()
+SendWelcomeEmail::dispatch(email: 'user@example.com', name: 'Alice');
+
+// Using Laravel's global helper
+dispatch(new SendWelcomeEmail(email: 'user@example.com', name: 'Alice'));
+```
+
+When the queue worker processes the job, Laravel's `CallQueuedHandler` calls `handle()` through the container, so type-hinted dependencies are injected automatically — the same as when running synchronously.
+
+> **Note:** Do not add `use Illuminate\Foundation\Bus\Dispatchable` to your action class. The base `Action` class already provides `dispatch()`, and adding the trait will cause a conflict.
+
+## The `data()` Helper
+
+`data()` returns all constructor-promoted properties as a key–value array, which is handy for mass-assignment:
+
+```php
+public function handle(): Post
+{
+    // Returns ['title' => '...', 'body' => '...']
+    return Post::create($this->data());
+}
+```
+
+Actions with no constructor return an empty array from `data()`.
+
+## Changelog
+
+Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+
+## Security
 
 If you discover any security related issues, please email raditzfarhan@gmail.com instead of using the issue tracker.
 
